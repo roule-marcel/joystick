@@ -1,0 +1,125 @@
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width,user-scalable=no">
+		<title>Marcel joystick</title>
+		<style>
+
+
+			* { padding:0; margin:0; }
+			svg {
+				width:100vw;
+				height:100vh;
+				background:#ff0000;
+			}
+			svg.open {	background:#aaaaff;	}
+
+
+		</style>
+	</head>
+	
+	<body>
+		<svg id="svg">
+			<circle cx="50%" cy="50%" r="50" id="joy"></circle>
+		</svg>
+	</body>
+
+	<script src="utils.js"></script>
+	<script>
+
+		var JOY = null;
+		var URI = document.location.hostname+":10000";
+		var CONNECTION = null;
+		var INTERVAL = null;
+		var LEFT = 0;
+		var RIGHT = 0;
+
+///////////
+// UTILS //
+///////////
+
+		function control(x,y) {
+			x-=0.5;
+			y-=0.5;
+			x*=0.3;
+			y*=2;
+			LEFT = Math.round((y-x)*500);
+			RIGHT = -Math.round((y+x)*500);
+		}
+
+		function onConnect() {
+			$("#svg").className = "open";
+			if(!INTERVAL) INTERVAL = setInterval(step, 50);
+		}
+
+		function step() {
+			if(CONNECTION) CONNECTION.send(LEFT+" "+RIGHT);
+		}
+
+		function onClose() {
+			$("#svg").className = "closed";
+			if(INTERVAL) clearInterval(INTERVAL);
+			INTERVAL = null;
+		}
+
+		function onDragStart(x,y) {
+
+		}
+
+		function onDrag(x,y) {
+			control(x,y);
+			setJoyPos(x,y);
+		}
+
+		function onLeave(x,y) {
+			control(0.5,0.5);
+			setJoyPos(0.5,0.5);
+		}
+
+		function setJoyPos(x,y) {
+			JOY.setAttribute("cx", (x*100)+'%');
+			JOY.setAttribute("cy", (y*100)+'%');
+		}
+
+		window.onload = function() {
+			JOY = $("#joy");
+			var dragged = false;
+			window.addEventListener("touchstart", function(event) {
+				dragged = true;
+				onDragStart(event.touches[0].pageX/$("#svg").clientWidth, event.touches[0].pageY/$("#svg").clientHeight);
+			});
+			window.addEventListener("mousedown", function(event) {
+				dragged = true;
+				onDragStart(event.x/$("#svg").clientWidth, event.y/$("#svg").clientHeight);
+			});
+			window.addEventListener("mousemove", function(event) {
+				var bb = $("#svg").getBBox();
+				if(dragged) onDrag(event.x/$("#svg").clientWidth, event.y/$("#svg").clientHeight);
+			});
+			window.addEventListener("touchmove", function(event) {
+				var bb = $("#svg").getBBox();
+				if(dragged) onDrag(event.touches[0].pageX/$("#svg").clientWidth, event.touches[0].pageY/$("#svg").clientHeight);
+				event.preventDefault();
+				event.stopPropagation();
+			});
+			window.addEventListener("mouseup", function() {
+				dragged = false;
+				onLeave();
+			});
+			window.addEventListener("touchend", function() {
+				dragged = false;
+				onLeave();
+			});
+
+			var _connection = new WebSocket("ws://"+URI, "marcel-joystick");
+			_connection.onopen = function() {
+				CONNECTION = _connection;
+				onConnect();
+			};
+			_connection.onclose = function() {
+				CONNECTION = null;
+				onClose();
+			}
+		}
+
+	</script>
+</html>

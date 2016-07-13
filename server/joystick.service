@@ -1,0 +1,9 @@
+[Unit]
+Description=Marcel Joystick
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/marcel-joystick
+
+[Install]
+WantedBy=multi-user.target

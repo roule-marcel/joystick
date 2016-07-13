@@ -1,0 +1,4 @@
+#!/bin/bash
+
+cd /usr/lib/marcel-joystick
+python -m SimpleHTTPServer 80 >/tmp/marcel-joystick-app 
