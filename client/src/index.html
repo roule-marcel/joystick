@@ -9,16 +9,31 @@
 			svg {
 				width:100vw;
 				height:100vh;
-				background:#ff0000;
+				background:rgba(255,0,0,0.7);
 			}
-			svg.open {	background:#aaaaff;	}
+			svg.open {	background:none;	}
 
+			body {
+				background: url('resources/bg_007.jpg') no-repeat center center;
+			}
+
+			#joy {
+				stroke:black;
+				fill:rgba(255,255,255,0.9);
+				stroke-width:10px;
+			}
+			line { opacity:0.2; stroke-width:6px;}
 
 		</style>
 	</head>
-	
+
 	<body>
-		<svg id="svg">
+		<svg id="svg" class="open">
+			<filter id="image" x="0%" y="0%" width="100%" height="100%">
+	   			<feImage xlink:href="resources/logo.png"/>
+   			</filter>
+			<line x1="50%" x2="50%" y1="0%" y2="100%" stroke="white"></line>
+			<line y1="50%" y2="50%" x1="0%" x2="100%" stroke="white"></line>
 			<circle cx="50%" cy="50%" r="50" id="joy"></circle>
 		</svg>
 	</body>
