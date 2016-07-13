@@ -10,6 +10,7 @@ install: server
 	sudo chown root /etc/systemd/system/joystick.service
 	sudo systemctl daemon-reload
 	sudo systemctl restart joystick.service
+	sudo systemctl enable joystick.service
 
 clean:
 	@rm -rf bin
