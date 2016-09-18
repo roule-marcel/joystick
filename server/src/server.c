@@ -24,8 +24,12 @@
 void onMessage(char* msg) {
 	short left, right;
 	printf("Recv : %s\n", msg);
-	sscanf(msg, "%hd %hd", &left, &right);
-	serial_control(left, right, CONTROL_TIMEOUT);
+	if(msg[0] == 's') {
+		sscanf(&msg[1], "%hd %hd", &left, &right);
+		serial_control(left, right, CONTROL_TIMEOUT);
+	} else if(msg[0] == 't') {
+		serial_roaming();
+	}
 }
 
 void quit(int signo) { websocket_quit(); }

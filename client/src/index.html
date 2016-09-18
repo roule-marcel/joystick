@@ -24,6 +24,15 @@
 			}
 			line { opacity:0.2; stroke-width:6px;}
 
+			#roam {
+				color:white;
+				background:blue;
+				border-radius:20px;
+			}
+			#roam.on {
+
+			}
+
 		</style>
 	</head>
 
@@ -36,6 +45,7 @@
 			<line y1="50%" y2="50%" x1="0%" x2="100%" stroke="white"></line>
 			<circle cx="50%" cy="50%" r="50" id="joy"></circle>
 		</svg>
+		<button id="roam" onclick="roam()"></button>
 	</body>
 
 	<script src="utils.js"></script>
@@ -61,13 +71,17 @@
 			RIGHT = -Math.round((y+x)*500);
 		}
 
+		function roam() {
+			if(CONNECTION) CONNECTION.send("t");
+		}
+
 		function onConnect() {
 			$("#svg").className = "open";
 			if(!INTERVAL) INTERVAL = setInterval(step, 50);
 		}
 
 		function step() {
-			if(CONNECTION) CONNECTION.send(LEFT+" "+RIGHT);
+			if(CONNECTION) CONNECTION.send("s"+LEFT+" "+RIGHT);
 		}
 
 		function onClose() {

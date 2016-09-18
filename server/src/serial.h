@@ -37,6 +37,12 @@ void serial_control(short left, short right, unsigned short timeout) {
 	write(tty_fd, command, strlen(command));
 }
 
+/** Toggle the autonomous roaming mode */
+void serial_roaming() {
+	sprintf(command, "t\r");
+	write(tty_fd, command, strlen(command));
+}
+
 /** Close the serial link */
 void serial_close() {
 	close(tty_fd);
