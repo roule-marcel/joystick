@@ -12,4 +12,5 @@ cd ./client
 ./offline-test
 ````
 Then, open a web browser and go to http://localhost:8000
+
 In the first terminal (server), you'll see the command that are directly sent to the MCU's tty.
