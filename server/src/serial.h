@@ -35,12 +35,14 @@ void serial_init(const char* tty) {
 void serial_control(short left, short right, unsigned short timeout) {
 	sprintf(command, "s %d %d %d\r", left, right, timeout);
 	write(tty_fd, command, strlen(command));
+	printf(command);
 }
 
 /** Toggle the autonomous roaming mode */
-void serial_roaming() {
-	sprintf(command, "t\r");
+void serial_roaming(int bEnable) {
+	sprintf(command, "t %u\r", bEnable ? 1 : 0);
 	write(tty_fd, command, strlen(command));
+	printf(command);
 }
 
 /** Close the serial link */

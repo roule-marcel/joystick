@@ -23,12 +23,12 @@
 /** Called when a message is received on a WebSocket */
 void onMessage(char* msg) {
 	short left, right;
-	printf("Recv : %s\n", msg);
+	//printf("Recv : %s\n", msg);
 	if(msg[0] == 's') {
 		sscanf(&msg[1], "%hd %hd", &left, &right);
 		serial_control(left, right, CONTROL_TIMEOUT);
 	} else if(msg[0] == 't') {
-		serial_roaming();
+		serial_roaming(msg[1] == '1');
 	}
 }
 

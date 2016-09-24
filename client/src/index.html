@@ -2,54 +2,138 @@
 	<head>
 		<meta name="viewport" content="width=device-width,user-scalable=no">
 		<title>Marcel joystick</title>
+		<script src="cam.js"></script>
+		<script src="perispace.js"></script>
 		<style>
 
 
 			* { padding:0; margin:0; }
-			svg {
+			#joystick {
+				position:fixed;
+				bottom:0;
 				width:100vw;
 				height:100vh;
-				background:rgba(255,0,0,0.7);
+				background:#022C3B;
+				transition: all 0.3s;
 			}
-			svg.open {	background:none;	}
+			.with_map #joystick {
+				height:50vh;
+			}
+			#joystick.open {	background:none;	}
 
 			body {
-				background: url('resources/bg_007.jpg') no-repeat center center;
+				background: rgba(105,105,105,0.1) no-repeat center center;
 			}
 
 			#joy {
 				stroke:black;
-				fill:rgba(255,255,255,0.9);
+				fill:#image;
 				stroke-width:10px;
 			}
-			line { opacity:0.2; stroke-width:6px;}
+			line { opacity:0.5; stroke-width:6px;}
 
-			#roam {
+			.button {
+				position:fixed;
+				bottom:30px;
+				left:30px;
+				width:35px;
+				height:35px;
 				color:white;
-				background:blue;
-				border-radius:20px;
+				background:#00aced;
+				border-radius:100%;
+				padding:10px;
+				opacity:0.5;
+				transition: all 0.3s;
 			}
-			#roam.on {
+			.button.on {
+				bottom:25px;
+				width:45px; height:45px;
+				box-shadow:0px 0px 15px #00aced;
+				opacity:1;
+			}
+			.with_map .button {width:20px; height:20px;}
+			.with_map .button.on {width:25px; height:25px;}
 
+			#control { left:30px; }
+			#bMap { right:30px; left:auto;}
+
+			#obstacles {
+				stroke:rgba(0,172,237,0.6);
+				fill:rgba(112,214,255,0.2);
+				stroke-width:2;
 			}
 
+			.obstacle {
+				fill:rgba(0,172,237,1);
+				stroke:none;
+			}
+
+			#g_obstacles {
+				transform: translate(50vw,50vh);
+			}
+			.with_map #g_obstacles {
+				transform: translate(50vw,25vh);
+			}
+
+			#map {
+				opacity:0; transition: all 0.3s;
+				background: white;
+				position:fixed;
+				top:0;
+				width:100vw; height:50vh;
+				border:2px solid black;
+				box-sizing: border-box;
+				box-shadow:         inset 0 0 10px rgba(0,172,237,0.2);
+			}
+			.with_map #map { display:block; opacity:1; }
+			#path {
+					stroke-width:2;
+					stroke:rgba(0,172,237,1);
+					fill:none;
+			}
+
+			.closed .button { opacity:0;}
+			.closed #joystick { opacity:0;}
+			.closed #map { opacity:0;}
+			#closed_message {display:none; width:100vw; height:100vh; text-align: center; vertical-align: middle; color:#888888;     font-family: sans-serif;}
+			.closed #closed_message {display:table-cell;}
 		</style>
 	</head>
 
 	<body>
-		<svg id="svg" class="open">
-			<filter id="image" x="0%" y="0%" width="100%" height="100%">
-	   			<feImage xlink:href="resources/logo.png"/>
-   			</filter>
-			<line x1="50%" x2="50%" y1="0%" y2="100%" stroke="white"></line>
-			<line y1="50%" y2="50%" x1="0%" x2="100%" stroke="white"></line>
-			<circle cx="50%" cy="50%" r="50" id="joy"></circle>
+		<video id="remoteVideo" autoplay=1 style="width:100vw;height:100vh;position:fixed;top:0;left:0;border:none;z-index:-1; background:black;"></video>
+		<svg id="joystick">
+			<line x1="50%" x2="50%" y1="0%" y2="100%" stroke="#00aced"></line>
+			<line y1="50%" y2="50%" x1="0%" x2="100%" stroke="#00aced"></line>
+			<g id="g_obstacles">
+				<path id="obstacles"></path>
+				<circle class="obstacle" id="obstacle_0" cx=74.229479 cy=132.91859 r="4"></circle>
+				<circle class="obstacle" id="obstacle_1" cx=-77.866628 cy=131.02743 r="4"></circle>
+				<circle class="obstacle" id="obstacle_2" cx=-112.349 cy=-103.56791 r="4"></circle>
+				<circle class="obstacle" id="obstacle_3" cx=0 cy=-151.17113 r="4"></circle>
+				<circle class="obstacle" id="obstacle_4" cx=112.349 cy=-103.56791 r="4"></circle>
+			</g>
+			<image id="joy" xlink:href="resources/logo-circle.png" x="50%" y="50%" height="100px" width="100px" transform="translate(-50,-50)"/>
 		</svg>
-		<button id="roam" onclick="roam()"></button>
+		<svg id="map">
+			<path id="path" d="M 0,0 L 10,0 50,10 80,100, 50,100, 10,50"></path>
+		</svg>
+		<img class="button on" id="control" onclick="do_roam()" src="resources/joystick.svg">
+		<img class="button" id="bMap" onclick="do_map()" src="resources/map.svg">
+		<div id="dbg" style="position:fixed;left:0;top:50%; font-size:12px;display:none;"></div>
+		<div id="closed_message">Robot not connected</div>
+        <script type="text/javascript">
+		var remoteVideo;
+		var peerConnection;
+		var peerConnectionConfig = {'iceServers': [{'url': 'stun:stun.services.mozilla.com'}, {'url': 'stun:stun.l.google.com:19302'}]};
+	            pageReady();
+        </script>
 	</body>
 
 	<script src="utils.js"></script>
 	<script>
+
+		var obstacles = [0,1,1,1,1];
 
 		var JOY = null;
 		var URI = document.location.hostname+":10000";
@@ -67,25 +151,32 @@
 			y-=0.5;
 			x*=0.3;
 			y*=2;
-			LEFT = Math.round((y-x)*500);
-			RIGHT = -Math.round((y+x)*500);
+			LEFT = -Math.round((y+x)*500);
+			RIGHT = Math.round((y-x)*500);
 		}
 
-		function roam() {
-			if(CONNECTION) CONNECTION.send("t");
+		function do_roam() {
+			toggleClass($("#control"), "on");
+			if(CONNECTION) CONNECTION.send("t"+ hasClass($("#control"), "on") ? "1" : "0");
+		}
+
+		function do_map() {
+			toggleClass($("body"), "with_map");
+			mimicClass($("#bMap"), "on", $("body"), "with_map");
 		}
 
 		function onConnect() {
-			$("#svg").className = "open";
+			removeClass($("body"), "closed");
 			if(!INTERVAL) INTERVAL = setInterval(step, 50);
+			if(CONNECTION) CONNECTION.send("t"+ (bRoaming ? "1" : "0"));
 		}
 
 		function step() {
-			if(CONNECTION) CONNECTION.send("s"+LEFT+" "+RIGHT);
+			if(CONNECTION && !bRoaming) CONNECTION.send("s"+LEFT+" "+RIGHT);
 		}
 
 		function onClose() {
-			$("#svg").className = "closed";
+			addClass($("body"), "closed");
 			if(INTERVAL) clearInterval(INTERVAL);
 			INTERVAL = null;
 		}
@@ -105,8 +196,8 @@
 		}
 
 		function setJoyPos(x,y) {
-			JOY.setAttribute("cx", (x*100)+'%');
-			JOY.setAttribute("cy", (y*100)+'%');
+			JOY.setAttribute("x", (x*100)+'%');
+			JOY.setAttribute("y", (y*100)+'%');
 		}
 
 		window.onload = function() {
@@ -114,19 +205,19 @@
 			var dragged = false;
 			window.addEventListener("touchstart", function(event) {
 				dragged = true;
-				onDragStart(event.touches[0].pageX/$("#svg").clientWidth, event.touches[0].pageY/$("#svg").clientHeight);
+				onDragStart(event.touches[0].pageX/$("#joystick").clientWidth, event.touches[0].pageY/$("#joystick").clientHeight);
 			});
 			window.addEventListener("mousedown", function(event) {
 				dragged = true;
-				onDragStart(event.x/$("#svg").clientWidth, event.y/$("#svg").clientHeight);
+				onDragStart(event.x/$("#joystick").clientWidth, event.y/$("#joystick").clientHeight);
 			});
 			window.addEventListener("mousemove", function(event) {
-				var bb = $("#svg").getBBox();
-				if(dragged) onDrag(event.x/$("#svg").clientWidth, event.y/$("#svg").clientHeight);
+				var bb = $("#joystick").getBBox();
+				if(dragged) onDrag(event.x/$("#joystick").clientWidth, event.y/$("#joystick").clientHeight);
 			});
 			window.addEventListener("touchmove", function(event) {
-				var bb = $("#svg").getBBox();
-				if(dragged) onDrag(event.touches[0].pageX/$("#svg").clientWidth, event.touches[0].pageY/$("#svg").clientHeight);
+				var bb = $("#joystick").getBBox();
+				if(dragged) onDrag(event.touches[0].pageX/$("#joystick").clientWidth, event.touches[0].pageY/$("#joystick").clientHeight);
 				event.preventDefault();
 				event.stopPropagation();
 			});
@@ -146,9 +237,16 @@
 			};
 			_connection.onclose = function() {
 				CONNECTION = null;
-				onClose();
+				// onClose();
 			}
 		}
+
+		var i = 0;
+		function test_obstacles() {
+			obstacles[0] = 1;
+			compute_obstacles_path();
+		}
+		setInterval(test_obstacles, 50);
 
 	</script>
 </html>
