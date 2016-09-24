@@ -3,12 +3,12 @@
 To test the WebApp without an actual Marcel robot,
 just open a terminal and launch
 ````bash
-cd ./server;
+cd ./server
 ./server
 ````
 In another terminal launch (NOTE: this requires python to be installed)
 ````bash
-cd ./client;
+cd ./client
 ./offline-test
 ````
 Then, open a web browser and go to http://localhost:8000
