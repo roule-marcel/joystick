@@ -11,10 +11,10 @@ window.RTCSessionDescription = window.RTCSessionDescription || window.mozRTCSess
 
 
 
-function pageReady() {
+function init_camera() {
     remoteVideo = document.getElementById('remoteVideo');
 
-    serverConnection = new WebSocket('ws://192.168.1.109:3434');
+    serverConnection = new WebSocket('ws://'+ window.location.hostname +':3434');
     serverConnection.onmessage = gotMessageFromServer;
 
     var constraints = { video: true, audio: true };

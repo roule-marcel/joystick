@@ -122,12 +122,6 @@
 		<img class="button" id="bMap" onclick="do_map()" src="resources/map.svg">
 		<div id="dbg" style="position:fixed;left:0;top:50%; font-size:12px;display:none;"></div>
 		<div id="closed_message">Robot not connected</div>
-        <script type="text/javascript">
-		var remoteVideo;
-		var peerConnection;
-		var peerConnectionConfig = {'iceServers': [{'url': 'stun:stun.services.mozilla.com'}, {'url': 'stun:stun.l.google.com:19302'}]};
-	            pageReady();
-        </script>
 	</body>
 
 	<script src="utils.js"></script>
@@ -146,6 +140,12 @@
 ///////////
 // UTILS //
 ///////////
+
+		var remoteVideo;
+		var peerConnection;
+		var peerConnectionConfig = {'iceServers': [{'url': 'stun:stun.services.mozilla.com'}, {'url': 'stun:stun.l.google.com:19302'}]};
+		init_camera();
+
 
 		function control(x,y) {
 			x-=0.5;
