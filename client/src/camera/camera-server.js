@@ -22,6 +22,7 @@ wss.on('connection', function(ws) {
     	        console.log('A->B : %s', message);
     	        if(B) B.send(message);
     	    });
+            console.log("Source connected successfully !");
     	}
     	else if(B===null && message==="sink") {
     		B = ws;
@@ -29,6 +30,7 @@ wss.on('connection', function(ws) {
     	        console.log('B->A : %s', message);
     	        if(A) A.send(message);
     	    });
+            console.log("Sink connected successfully !");
     	} else {
             wss.broadcast(message);
         }
