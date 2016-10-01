@@ -30,9 +30,9 @@ wss.on('connection', function(ws) {
     	        console.log('B->A : %s', message);
     	        if(A) A.send(message);
     	    });
-            console.log("Sink connected successfully !");
+            console.log("Source connected successfully !");
     	} else {
-            wss.broadcast(message);
+            console.log("Wrong request : " + message);
         }
 
     });
