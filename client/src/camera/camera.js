@@ -5,6 +5,12 @@ function dbg(s) {
 }
 
 
+var localVideo;
+var remoteVideo;
+var peerConnection;
+var peerConnectionConfig = {'iceServers': [{'url': 'stun:stun.services.mozilla.com'}, {'url': 'stun:stun.l.google.com:19302'}]};
+
+
 
 navigator.getUserMedia = navigator.getUserMedia || navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
 window.RTCPeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
@@ -21,6 +27,14 @@ function init_camera(role) {
 	serverConnection.onmessage = gotMessageFromServer;
 
 	var constraints = { video: true, audio: true };
+
+	if(role === "source") {
+		if(navigator.getUserMedia) {
+	  		navigator.getUserMedia(constraints, getUserMediaSuccess, getUserMediaError);
+  		} else {
+	  		alert('Your browser does not support getUserMedia API');
+  		}
+	}
 }
 
 
@@ -34,9 +48,22 @@ function start(isCaller) {
 	peerConnection.onaddstream = gotRemoteStream;
 
 	if(isCaller) {
+		peerConnection.addStream(localStream);
 		peerConnection.createOffer(gotDescription, createOfferError);
 	}
 }
+
+
+function getUserMediaSuccess(stream) {
+    localStream = stream;
+	localVideo = document.getElementById('localVideo');
+    if(localVideo) localVideo.src = window.URL.createObjectURL(stream);
+}
+
+function getUserMediaError(error) {
+    console.log(error);
+}
+
 
 function gotDescription(description) {
 	console.log('got description');
@@ -75,7 +102,7 @@ function gotMessageFromServer(message) {
 	if(!peerConnection) start(false);
 
 	if(message === "sink" || message === "source") return;
-	
+
 	var signal = JSON.parse(message.data);
 	if(signal.sdp) {
 		dbg("j'ai eu une offer");
