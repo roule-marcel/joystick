@@ -1,3 +1,4 @@
 #!/bin/sh
 
-nodejs src/camera-server.js
+cd src
+nodejs camera-server.js
