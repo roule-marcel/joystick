@@ -32,3 +32,7 @@ wss.on('connection', function(ws) {
         wss.broadcast(message);
     });
 });
+
+console.log("Marcel camera-server listening on port 3434");
+
+
