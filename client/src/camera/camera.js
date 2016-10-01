@@ -74,6 +74,8 @@ function createAnswerError(error) {
 function gotMessageFromServer(message) {
 	if(!peerConnection) start(false);
 
+	if(message === "sink" || message === "source") return;
+	
 	var signal = JSON.parse(message.data);
 	if(signal.sdp) {
 		dbg("j'ai eu une offer");
