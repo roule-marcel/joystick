@@ -2,7 +2,7 @@
 	<head>
 		<meta name="viewport" content="width=device-width,user-scalable=no">
 		<title>Marcel joystick</title>
-		<script src="camera.js"></script>
+		<script src="camera/camera.js"></script>
 		<script src="perispace.js"></script>
 		<style>
 
@@ -144,7 +144,7 @@
 		var remoteVideo;
 		var peerConnection;
 		var peerConnectionConfig = {'iceServers': [{'url': 'stun:stun.services.mozilla.com'}, {'url': 'stun:stun.l.google.com:19302'}]};
-		init_camera();
+		init_camera("sink");
 
 
 		function control(x,y) {
