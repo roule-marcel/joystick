@@ -1,5 +1,7 @@
 function dbg(s) {
-	document.getElementById("dbg").innerHTML += "<br>" + s;
+	if(document && document.getElementById("dbg"))
+		document.getElementById("dbg").innerHTML += "<br>" + s;
+	else console.log(s);
 }
 
 
