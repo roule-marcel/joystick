@@ -16,7 +16,7 @@ wss.on('connection', function(ws) {
     ws.on('message', function(message) {
         console.log('received: %s', message);
 
-        if(A===null && message==="source") {
+        if(message==="source") {
     		A = ws;
     		A.on('message', function(message) {
     	        console.log('A->B : %s', message);
@@ -24,7 +24,7 @@ wss.on('connection', function(ws) {
     	    });
             console.log("Source connected successfully !");
     	}
-    	else if(B===null && message==="sink") {
+    	else if(message==="sink") {
     		B = ws;
     		B.on('message', function(message) {
     	        console.log('B->A : %s', message);
