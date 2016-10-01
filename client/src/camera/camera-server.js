@@ -4,12 +4,6 @@ var A = null;
 var B = null;
 var wss = new WebSocketServer({port: 3434});
 
-wss.broadcast = function(data) {
-    for(var i in this.clients) {
-        this.clients[i].send(data);
-    }
-};
-
 wss.on('connection', function(ws) {
 	console.log("connection");
     ws.onclose = function() { console.log("connection closed"); }
@@ -18,21 +12,20 @@ wss.on('connection', function(ws) {
 
         if(message==="source") {
     		A = ws;
-    		A.on('message', function(message) {
-    	        console.log('A->B : %s', message);
-    	        if(B) B.send(message);
-    	    });
             console.log("Source connected successfully !");
     	}
     	else if(message==="sink") {
     		B = ws;
-    		B.on('message', function(message) {
-    	        console.log('B->A : %s', message);
-    	        if(A) A.send(message);
-    	    });
-            console.log("Sink connected successfully !");
-    	} else {
-            console.log("Wrong request : " + message);
+    		console.log("Sink connected successfully !");
+    	}
+
+        if(ws===A) {
+            console.log('A->B : %s', message);
+            if(B) B.send(message);
+        }
+        else if(ws===B) {
+            console.log('B->A : %s', message);
+            if(A) A.send(message);
         }
 
     });
