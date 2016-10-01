@@ -16,8 +16,8 @@ clean:
 	@rm -rf bin
 
 server: bin/server.o
-	gcc -g -o $@ $< -pthread -lwebsockets
+	gcc -g -DDEBUG -o $@ $< -pthread -lwebsockets
 
 bin/%.o: src/%.c src/*.h
 	@mkdir -p bin
-	gcc -g -c -o $@ $<
+	gcc -g -DDEBUG -c -o $@ $<

@@ -64,7 +64,7 @@ int websocket_create(int port) {
         return -1;
     }
 
-    printf("websocket ok test\n");
+    printf("Started. Listening to connection ... \n");
 }
 
 static int bQuit = 0;

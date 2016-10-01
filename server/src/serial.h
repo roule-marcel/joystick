@@ -9,7 +9,6 @@
 
 // Data structures
 static int tty_fd;
-static char command[128];
 
 
 // API Implementation
@@ -31,18 +30,11 @@ void serial_init(const char* tty) {
 	tcsetattr(tty_fd,TCSANOW,&tio);
 }
 
-/** Send a motor command through the serial link */
-void serial_control(short left, short right, unsigned short timeout) {
-	sprintf(command, "s %d %d %d\r", left, right, timeout);
-	write(tty_fd, command, strlen(command));
-	printf(command);
-}
-
-/** Toggle the autonomous roaming mode */
-void serial_roaming(int bEnable) {
-	sprintf(command, "t %u\r", bEnable ? 1 : 0);
-	write(tty_fd, command, strlen(command));
-	printf(command);
+/** Send a command through the serial link */
+void serial_command(const char* command) {
+	char _command[128];
+	sprintf(_command, "%s\r", command);
+	write(tty_fd, _command, strlen(_command));
 }
 
 /** Close the serial link */
