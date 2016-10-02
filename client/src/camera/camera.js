@@ -79,13 +79,8 @@ function gotIceCandidate(event) {
 }
 
 function gotRemoteStream(event) {
-	dbg("got remote stream");
-	console.log("got remote stream : " + event.stream);
-	dbg("window.URL.createObjectURL = "+ window.URL.createObjectURL);
-	dbg("window.URL.createObjectURL = "+ typeof window.URL.createObjectURL);
-	dbg("remoteVideo = "+ remoteVideo);
 	remoteVideo.src = window.URL.createObjectURL(event.stream);
-	dbg("remoteVideo.src = " + remoteVideo.src);
+	console.log("got remote stream : " + remoteVideo.src);
 }
 
 function createOfferError(error) {
@@ -105,9 +100,7 @@ function gotMessageFromServer(message) {
 
 	var signal = JSON.parse(message.data);
 	if(signal.sdp) {
-		dbg("j'ai eu une offer");
 		peerConnection.setRemoteDescription(new RTCSessionDescription(signal.sdp), function() {
-			dbg("j'ai créé une answer");
 			peerConnection.createAnswer(gotDescription, createAnswerError);
 		});
 	} else if(signal.ice) {
