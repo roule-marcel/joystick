@@ -13,7 +13,6 @@
 				bottom:0;
 				width:100vw;
 				height:100vh;
-				background:#022C3B;
 				transition: all 0.3s;
 			}
 			.with_map #joystick {
@@ -22,7 +21,7 @@
 			#joystick.open {	background:none;	}
 
 			body {
-				background: rgba(105,105,105,0.1) no-repeat center center;
+				background:#022C3B;
 			}
 
 			#joy {
@@ -101,7 +100,7 @@
 	</head>
 
 	<body class="closed">
-		<video id="remoteVideo" autoplay=1 style="width:100vw;height:100vh;position:fixed;top:0;left:0;border:none;z-index:0; background:black;"></video>
+		<video id="remoteVideo" autoplay=1 style="width:100vw;height:100vh;position:fixed;top:0;left:0;border:none;"></video>
 		<svg id="joystick">
 			<line x1="50%" x2="50%" y1="0%" y2="100%" stroke="#00aced"></line>
 			<line y1="50%" y2="50%" x1="0%" x2="100%" stroke="#00aced"></line>
