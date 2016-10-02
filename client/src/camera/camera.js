@@ -96,6 +96,7 @@ function createAnswerError(error) {
 function gotMessageFromServer(message) {
 	if(!peerConnection) start(false);
 
+	console.log(message);
 	if(message === "sink" || message === "source") return;
 
 	var signal = JSON.parse(message.data);
