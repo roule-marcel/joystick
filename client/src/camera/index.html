@@ -3,7 +3,7 @@
         <script src="camera.js"></script>
         <style>
             video { position:fixed; left:0; top:0; width:100vw; height:100vh; }
-            body { display:table-cell; left:0; top:0; width:100vw; height:100vh; text-align:center; }
+            div { display:flex; position:fixed; left:0; top:0; width:100vw; height:100vh; align-items: center; align-content: center; }
             button {
 				color:white;
 				background:#00aced;
@@ -16,8 +16,10 @@
     </head>
 
     <body>
-        <video id="localVideo" autoplay muted style="width:40%;"></video>
-        <button id="start" onclick="start(true)" value="Start Video"></button>
+        <video id="localVideo" autoplay muted></video>
+        <div>
+            <button id="start" onclick="start(true)" value="Start Video"></button>
+        </div>
 
         <script type="text/javascript">
             init_camera("source");
