@@ -1,15 +1,23 @@
 <html>
     <head>
         <script src="camera.js"></script>
+        <style>
+            video { position:fixed; left:0; top:0; width:100vw; height:100vh; }
+            body { display:table-cell; left:0; top:0; width:100vw; height:100vh; text-align:center; }
+            button {
+				color:white;
+				background:#00aced;
+				border-radius:100%;
+				padding:10px;
+				opacity:0.5;
+				transition: all 0.3s;
+			}
+        </style>
     </head>
 
     <body>
         <video id="localVideo" autoplay muted style="width:40%;"></video>
-        <video id="remoteVideo" autoplay style="width:40%;"></video>
-
-        <br />
-
-        <input type="button" id="start" onclick="start(true)" value="Start Video"></input>
+        <button id="start" onclick="start(true)" value="Start Video"></button>
 
         <script type="text/javascript">
             init_camera("source");
