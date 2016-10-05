@@ -4,6 +4,7 @@
 		<title>Marcel joystick</title>
 		<script src="camera/camera.js"></script>
 		<script src="perispace.js"></script>
+		<script src="map.js"></script>
 		<style>
 
 
@@ -112,7 +113,7 @@
 				<circle class="obstacle" id="obstacle_3" cx=0 cy=-151.17113 r="4"></circle>
 				<circle class="obstacle" id="obstacle_4" cx=112.349 cy=-103.56791 r="4"></circle>
 			</g>
-			<image id="joy" xlink:href="resources/logo-circle.png" x="50%" y="50%" height="100px" width="100px" transform="translate(-50,-50)"/>
+			<image id="joy" xlink:href="resources/logo-circle.png" x="50%" y="50%" height="100px" width="100px" transform="translate(-50,-50)" onclick="beep();" ontap="beep();"/>
 		</svg>
 		<svg id="map">
 			<path id="path" d="M 0,0 L 10,0 50,10 80,100, 50,100, 10,50"></path>
@@ -129,18 +130,23 @@
 		var obstacles = [0,1,1,1,1];
 
 		var JOY = null;
-		var URI = document.location.hostname+":10000";
+		var URI = window.location.hostname+":10000";
 		var CONNECTION = null;
 		var INTERVAL = null;
 		var LEFT = 0;
 		var RIGHT = 0;
 		var CONTROL_TIMEOUT = 200;
+		var trajectory = [];
 
 ///////////
 // UTILS //
 ///////////
 
 		init_camera("sink");
+
+		function beep() {
+			CONNECTION.send("b 100");
+		}
 
 		function control(x,y) {
 			x-=0.5;
@@ -164,17 +170,30 @@
 		function onConnect() {
 			removeClass($("body"), "closed");
 			if(!INTERVAL) INTERVAL = setInterval(step, 50);
-			if(CONNECTION) CONNECTION.send("t "+ (hasClass($("#control"), "on") ? "0" : "1"));
+			if(CONNECTION) {
+				CONNECTION.send("t "+ (hasClass($("#control"), "on") ? "0" : "1"));
+				CONNECTION.onmessage = function(msg) { onMessage(msg.data); }
+			}
 		}
 
 		function step() {
-			if(CONNECTION && hasClass($("#control"), "on")) CONNECTION.send("s "+LEFT+" "+RIGHT + " " + CONTROL_TIMEOUT);
+			if(CONNECTION && hasClass($("#control"), "on")) CONNECTION.send("m "+LEFT+" "+RIGHT + " " + CONTROL_TIMEOUT);
 		}
 
 		function onClose() {
 			addClass($("body"), "closed");
 			if(INTERVAL) clearInterval(INTERVAL);
 			INTERVAL = null;
+		}
+
+		function onMessage(msg) {
+			if(msg[0]==='u') {
+				obstacles = msg.slice(2).split(" ").map(function(v) { return parseFloat(v); });
+				compute_obstacles_path();
+			} else if(msg[0]==='o') {
+				trajectory.push(msg.slice(2).split(" ").map(function(v) { return parseFloat(v); }));
+				compute_map();
+			}
 		}
 
 		function onDragStart(x,y) {
@@ -242,13 +261,6 @@
 			setInterval(tryConnect,1000);
 			tryConnect();
 		}
-
-		var i = 0;
-		function test_obstacles() {
-			obstacles[0] = 1;
-			compute_obstacles_path();
-		}
-		setInterval(test_obstacles, 50);
 
 	</script>
 </html>

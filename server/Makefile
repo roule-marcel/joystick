@@ -16,8 +16,8 @@ clean:
 	@rm -rf bin
 
 server: bin/server.o
-	gcc -g -DDEBUG -o $@ $< -pthread -lwebsockets
+	g++ -std=c++11 -g -DDEBUG -o $@ $< -pthread -lwebsockets -lpubsub
 
-bin/%.o: src/%.c src/*.h
+bin/%.o: src/%.cpp src/*.h
 	@mkdir -p bin
-	gcc -g -DDEBUG -c -o $@ $<
+	g++ -std=c++11 -g -DDEBUG -c -o $@ $<

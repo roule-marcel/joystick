@@ -1,20 +1,22 @@
 #include <libwebsockets.h>
+#include <stdarg.h>
 
 // Interface
 extern void onMessage(char* msg);
-
+extern void onWebsocketOpen(struct libwebsocket *wsi);
 
 static int callback_http(struct libwebsocket_context* _this, struct libwebsocket *wsi, enum libwebsocket_callback_reasons reason, void *user, void *in, size_t len) {return 0;}
 static int callback_websocket(struct libwebsocket_context *context, struct libwebsocket *ws, enum libwebsocket_callback_reasons reason, void *user, void *msg, size_t len) {
     switch (reason) {
         case LWS_CALLBACK_ESTABLISHED:
-            printf(KYEL"Joystick connected\n"RESET);
+            printf(KYEL "Joystick connected\n" RESET);
+            onWebsocketOpen(ws);
             break;
         case LWS_CALLBACK_RECEIVE:
-            onMessage(msg);
+            onMessage((char*)msg);
             break;
         case LWS_CALLBACK_CLOSED:
-            printf(KYEL"Joystick disconnected\n"RESET);
+            printf(KYEL "Joystick disconnected\n" RESET);
             break;
     }
     return 0;
@@ -34,13 +36,23 @@ static struct libwebsocket_protocols protocols[] = {
 
 
 // API Implementation
+
 int websocket_write(struct libwebsocket *ws, char *str) {
     int len = strlen(str);
     char* out = (char *)malloc(sizeof(char)*(LWS_SEND_BUFFER_PRE_PADDING + len + LWS_SEND_BUFFER_POST_PADDING));
     memcpy (out + LWS_SEND_BUFFER_PRE_PADDING, str, len );
-    int n = libwebsocket_write(ws, out + LWS_SEND_BUFFER_PRE_PADDING, len, LWS_WRITE_TEXT);
+    int n = libwebsocket_write(ws, (unsigned char*) out + LWS_SEND_BUFFER_PRE_PADDING, len, LWS_WRITE_TEXT);
     free(out);
     return n;
+}
+
+void websocket_printf(struct libwebsocket *ws, const char* fmt, ...) {
+    char cmd[512];
+	va_list args;
+	va_start (args, fmt);
+	vsprintf (cmd, fmt, args);
+	va_end (args);
+	websocket_write(ws, cmd);
 }
 
 
@@ -60,11 +72,9 @@ int websocket_create(int port) {
 
     context = libwebsocket_create_context(&info);
     if (context == NULL) {
-        printf(KRED"Websocket context create error.\n"RESET);
+        printf(KRED "Websocket context create error.\n" RESET);
         return -1;
     }
-
-    printf("Started. Listening to connection ... \n");
 }
 
 static int bQuit = 0;
